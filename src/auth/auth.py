@@ -10,7 +10,7 @@ from auth.schemas import (
     UserLoginSchema,
     UserInDbSchema,
     UserSchema,
-    UserCreateSchema,
+    UserCreateSchema, get_user_login_schema,
 )
 from config import settings
 
@@ -37,7 +37,7 @@ async def get_tokens_from_cookies(request: Request) -> TokenPair:
 
 
 async def authenticate_user(
-    user_data: UserLoginSchema,
+    user_data: UserLoginSchema = Depends(get_user_login_schema),
 ) -> UserInDbSchema:
     incorrect_fields_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -97,8 +97,9 @@ async def get_current_superuser(
 
 
 async def register_user(user: UserCreateSchema) -> UserSchema:
-    user_model = await UserRepository.get_user_by_username(user.username)
-    if user_model is not None:
+    user_model_username = await UserRepository.get_user_by_username(user.username)
+    user_model_email = await UserRepository.get_user_by_email(user.email.__str__())
+    if user_model_email is not None or user_model_username is not None:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Пользователь уже существует",

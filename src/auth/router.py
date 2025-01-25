@@ -14,7 +14,6 @@ auth_router = router = APIRouter(tags=["Аутентификация"])
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register(user: UserCreateSchema = Depends(get_user_create_schema)):
-    print(user.__dict__)
     user = await register_user(user)
     return {"message": "Successfully registered", "user": user}
     # TODO: email verify

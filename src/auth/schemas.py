@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, field_validator, model_validator
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import ClassVar
 from fastapi import HTTPException, status, Form
 
@@ -10,8 +10,7 @@ class UserCreateSchema(BaseModel):
 
     USERNAME_ALLOWED_CHARACTERS: ClassVar[str] = "1234567890abcdefghijklmnopqrstuvwxyz_"
 
-    @classmethod
-    @field_validator("username")
+    @field_validator("username", mode="before")
     def validate_username(cls, username: str):
         if len(username) == 0:
             raise HTTPException(
@@ -40,12 +39,11 @@ class UserCreateSchema(BaseModel):
 
         return username
 
-    @classmethod
-    @field_validator("password")
+    @field_validator("password", mode="before")
     def validate_password(cls, password: str):
         if len(password) < 8:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="Password length must be more than 7 characters",
             )
         return password
@@ -71,6 +69,12 @@ class UserInDbSchema(UserSchema):
 class TokenPair(BaseModel):
     access_token: str
     refresh_token: str
+
+
+async def get_user_login_schema(
+    login: str = Form(...), password: str = Form(...)
+) -> UserLoginSchema:
+    return UserLoginSchema(login=login, password=password)
 
 
 async def get_user_create_schema(

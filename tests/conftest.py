@@ -11,14 +11,14 @@ def client() -> TestClient:
 
 
 @pytest.fixture
-def reset_database(client: TestClient):
+def reset_backend(client: TestClient):
     assert settings.MODE == "TEST"
-    response = client.post("/reset_database")
+    response = client.post("/reset_backend")
     assert response.status_code == 200
 
 
 @pytest.fixture(scope="class")
-def reset_database_class(client: TestClient):
+def reset_backend_class(client: TestClient):
     assert settings.MODE == "TEST"
-    response = client.post("/reset_database")
+    response = client.post("/reset_backend")
     assert response.status_code == 200

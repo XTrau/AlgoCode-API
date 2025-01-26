@@ -35,6 +35,7 @@ class JwtSettings(BaseSettings):
 
 class Settings(BaseSettings):
     MODE: str
+    UPLOAD_PATH: Path = BASE_DIR / "uploads"
 
     db: DBSettings = DBSettings()
     jwt: JwtSettings = JwtSettings()

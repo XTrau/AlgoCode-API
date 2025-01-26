@@ -40,9 +40,8 @@ async def reset_database():
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.drop_all)
             await conn.run_sync(Base.metadata.create_all)
-            return {"success": True, "msg": "База данных успешно сброшена"}
     except Exception as e:
-        return HTTPException(
+        raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Произошла ошибка при подключении к базе данных",
         )

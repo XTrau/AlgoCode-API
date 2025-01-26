@@ -10,7 +10,8 @@ from auth.schemas import (
     UserLoginSchema,
     UserInDbSchema,
     UserSchema,
-    UserCreateSchema, get_user_login_schema,
+    UserCreateSchema,
+    get_user_login_schema,
 )
 from config import settings
 
@@ -40,7 +41,7 @@ async def authenticate_user(
     user_data: UserLoginSchema = Depends(get_user_login_schema),
 ) -> UserInDbSchema:
     incorrect_fields_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
+        status_code=status.HTTP_403_FORBIDDEN,
         detail="Неправильный логин или пароль",
     )
 

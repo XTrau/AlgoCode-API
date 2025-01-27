@@ -8,12 +8,7 @@ class TestAuth:
     @pytest.mark.parametrize(
         "username, email, password, status_code",
         [
-            (
-                "XTray",
-                "example@mail",
-                "qweqweqwe",
-                status.HTTP_422_UNPROCESSABLE_ENTITY,
-            ),
+            ("XTray", "exam@mail", "qweqweqw", status.HTTP_422_UNPROCESSABLE_ENTITY),
             ("XTray", "example@mail.ru", "qwe", status.HTTP_422_UNPROCESSABLE_ENTITY),
             ("XTray", "example@mail.ru", "qweqweqwe", status.HTTP_201_CREATED),
             ("XTra1", "example1@mail.ru", "qweqweqwe", status.HTTP_201_CREATED),

@@ -33,12 +33,26 @@ class JwtSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
+class RedisSettings(BaseSettings):
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_DB: int
+    REDIS_PASS: str
+
+    @property
+    def redis_url(self):
+        return f"redis://:{self.REDIS_PASS}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+
 class Settings(BaseSettings):
     MODE: str
     UPLOAD_PATH: Path = BASE_DIR / "uploads"
 
     db: DBSettings = DBSettings()
     jwt: JwtSettings = JwtSettings()
+    redis: RedisSettings = RedisSettings()
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

@@ -4,7 +4,7 @@ from file_service import create_test_files
 from schemas import Pagination
 from tasks.models import TaskModel
 from tasks.repository import TaskRepository
-from tasks.schemas import TaskInDBSchema, TaskCreateSchema
+from tasks.schemas import TaskInDBSchema, TaskCreateSchema, Solution
 
 tasks_router = router = APIRouter(tags=["Задачи"])
 
@@ -32,10 +32,13 @@ async def get_tasks(pagination: Pagination) -> list[TaskInDBSchema]:
 
 
 @router.post("/{task_id}/solutions")
-async def create_task_solution(task_id: int = Path(gt=0)):
-    pass
+async def create_task_solution(solution: Solution = Body(), task_id: int = Path(gt=0)):
+
+    return {"msg": "Задача успешно отправлена"}
 
 
 @router.get("/{task_id}/solutions")
 async def get_task_solutions():
     pass
+    # solutions =
+    # return solutions

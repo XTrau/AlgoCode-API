@@ -1,15 +1,25 @@
 import uvicorn
 from fastapi import FastAPI, status
-from database import create_database, reset_database
+
+from admin import UserAdmin, TaskAdmin
+from database import create_database, reset_database, engine
 
 from auth.router import auth_router
 from file_service import clear_upload_folder
+from seed import seed_database
 from tasks.router import tasks_router
+
+from sqladmin import Admin
 
 app = FastAPI()
 
 app.include_router(auth_router)
 app.include_router(tasks_router, prefix="/tasks")
+
+
+admin = Admin(app, engine)
+admin.add_view(UserAdmin)
+admin.add_view(TaskAdmin)
 
 
 @app.get("/ping")
@@ -26,7 +36,8 @@ async def create():
 async def reset_backend():
     await reset_database()
     clear_upload_folder()
-    return {"msg": "База данных успешно очищена"}
+    await seed_database()
+    return {"msg": "База данных успешно очищена, суперюзер admin создан"}
 
 
 if __name__ == "__main__":

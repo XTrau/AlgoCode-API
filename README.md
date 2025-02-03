@@ -3,7 +3,7 @@
 Run postgres database in docker
 
 ```
-docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres posgres
+docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres
 ```
 
 Run Redis (broker for Celery) in docker

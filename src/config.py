@@ -4,6 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 BASE_DIR = Path(__file__).parent.parent
+ENV_DIR = BASE_DIR / ".env"
 
 
 class DBSettings(BaseSettings):
@@ -17,7 +18,7 @@ class DBSettings(BaseSettings):
     def database_asyncpg_url(self):
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=ENV_DIR, extra="ignore")
 
 
 class JwtSettings(BaseSettings):
@@ -30,7 +31,7 @@ class JwtSettings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_TIME: int
     REFRESH_TOKEN_EXPIRE_TIME: int
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=ENV_DIR, extra="ignore")
 
 
 class RedisSettings(BaseSettings):
@@ -43,7 +44,7 @@ class RedisSettings(BaseSettings):
     def redis_url(self):
         return f"redis://:{self.REDIS_PASS}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=ENV_DIR, extra="ignore")
 
 
 class Settings(BaseSettings):
@@ -54,7 +55,7 @@ class Settings(BaseSettings):
     jwt: JwtSettings = JwtSettings()
     redis: RedisSettings = RedisSettings()
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=ENV_DIR, extra="ignore")
 
 
 settings = Settings()

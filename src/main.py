@@ -6,8 +6,10 @@ from database import create_database, reset_database, engine
 
 from auth.router import auth_router
 from file_service import clear_upload_folder
-from seed import seed_database
+from solutions.router import solutions_router
 from tasks.router import tasks_router
+
+from seed import seed_database
 
 from sqladmin import Admin
 
@@ -15,6 +17,7 @@ app = FastAPI()
 
 app.include_router(auth_router)
 app.include_router(tasks_router, prefix="/tasks")
+app.include_router(solutions_router, prefix="/tasks")
 
 
 admin = Admin(app, engine)

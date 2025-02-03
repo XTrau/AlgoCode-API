@@ -1,6 +1,4 @@
 from fastapi import HTTPException, status
-from typing import Annotated
-from fastapi import Depends
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import DeclarativeBase
 
@@ -12,15 +10,12 @@ new_session = async_sessionmaker(bind=engine, expire_on_commit=False)
 
 
 class Base(DeclarativeBase):
-    pass
+    id: int
 
 
 async def get_session():
     async with new_session() as session:
         yield session
-
-
-SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 
 async def create_database():
@@ -42,6 +37,7 @@ async def reset_database():
             await conn.run_sync(Base.metadata.drop_all)
             await conn.run_sync(Base.metadata.create_all)
     except Exception as e:
+        print(e)
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Произошла ошибка при подключении к базе данных",

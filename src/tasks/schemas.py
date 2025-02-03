@@ -16,8 +16,3 @@ class TaskCreateSchema(BaseModel):
 
 class TaskInDBSchema(TaskCreateSchema):
     id: int
-
-
-class Solution(BaseModel):
-    language_id: int
-    code: str

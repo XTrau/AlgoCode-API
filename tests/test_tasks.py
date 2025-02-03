@@ -73,5 +73,20 @@ class TestTasks:
         response = client.get(f"/tasks/{task_id}")
         assert response.status_code == 200
         obj = response.json()
-        assert "id" in obj
-        assert "title" in obj
+        assert obj == {
+            "id": 1,
+            "title": "Супер мега задача",
+            "text": "Напишите программу которая принимает два целых числа a, b и выводит их сумму.",
+            "time": 0.5,
+            "memory": 64,
+            "example_tests": [
+                {"input": "1 2", "output": "3"},
+                {"input": "0 3", "output": "3"},
+            ],
+        }
+
+    def test_solutions_create(self, client):
+        pass
+
+    def test_solutions_create(self, client):
+        pass

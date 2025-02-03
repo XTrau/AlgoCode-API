@@ -1,0 +1,19 @@
+{
+  "1": {
+    "compile": "g++ {source} -o {executable} -O2 -std=c++17",
+    "run": "{executable}",
+    "extension": "cpp",
+    "compiled": true
+  },
+  "2": {
+    "run": "python3 {source}",
+    "extension": "py",
+    "compiled": false
+  },
+  "3": {
+    "compile": "javac {source}",
+    "run": "java -cp {directory} {classname}",
+    "extension": "java",
+    "compiled": true
+  }
+}

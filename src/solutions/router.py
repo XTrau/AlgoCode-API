@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.auth import get_current_active_user
 from auth.schemas import UserInDbSchema
-from database import get_session
+from database import get_async_session
 from solutions.schemas import SolutionCreateSchema, SolutionSchema
 from solutions.service import SolutionService
 from test_system.tasks import check_solution
@@ -16,7 +16,7 @@ async def create_task_solution(
     solution: SolutionCreateSchema = Body(),
     task_id: int = Path(gt=0),
     user: UserInDbSchema = Depends(get_current_active_user),
-    session: AsyncSession = Depends(get_session),
+    session: AsyncSession = Depends(get_async_session),
 ) -> dict:
     solution_schema: SolutionSchema = await SolutionService.create_solution(
         task_id=task_id, user_id=user.id, solution=solution, session=session
@@ -29,6 +29,6 @@ async def create_task_solution(
 async def get_task_solutions(
     task_id: int = Path(gt=0),
     user: UserInDbSchema = Depends(get_current_active_user),
-    session: AsyncSession = Depends(get_session),
+    session: AsyncSession = Depends(get_async_session),
 ) -> list[SolutionSchema]:
     return await SolutionService.get_task_solutions(task_id, user.id, session)

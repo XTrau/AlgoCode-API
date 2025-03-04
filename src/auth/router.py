@@ -12,7 +12,7 @@ from auth.schemas import (
 
 from auth.schemas import get_user_create_schema
 from auth.service import AuthService
-from database import get_session
+from database import get_async_session
 
 auth_router = router = APIRouter(tags=["Аутентификация"])
 
@@ -21,7 +21,7 @@ auth_router = router = APIRouter(tags=["Аутентификация"])
     "/register", status_code=status.HTTP_201_CREATED, response_model=UserSchema
 )
 async def register(
-    session: AsyncSession = Depends(get_session),
+    session: AsyncSession = Depends(get_async_session),
     user: UserCreateSchema = Depends(get_user_create_schema),
 ):
     user: UserSchema = await AuthService.register_user(user, session)
@@ -31,7 +31,7 @@ async def register(
 @router.post("/login", status_code=status.HTTP_204_NO_CONTENT)
 async def login_user(
     response: Response,
-    session: AsyncSession = Depends(get_session),
+    session: AsyncSession = Depends(get_async_session),
     user_data: UserLoginSchema = Depends(get_user_login_schema),
 ) -> Response:
     user: UserInDbSchema = await AuthService.authenticate_user(user_data, session)

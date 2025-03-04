@@ -2,7 +2,6 @@ from fastapi import Depends, HTTPException, Request
 from jwt import InvalidTokenError
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql.annotation import Annotated
 from starlette import status
 
 from auth.jwt import decode_jwt
@@ -12,7 +11,7 @@ from auth.schemas import (
     UserInDbSchema,
 )
 from config import settings
-from database import get_session
+from database import get_async_session
 
 pwd_context = CryptContext(schemes=["bcrypt"])
 
@@ -37,7 +36,7 @@ async def get_tokens_from_cookies(request: Request) -> TokenPair:
 
 
 async def get_current_user(
-    session: AsyncSession = Depends(get_session),
+    session: AsyncSession = Depends(get_async_session),
     token_pair: TokenPair = Depends(get_tokens_from_cookies),
 ) -> UserInDbSchema:
     credentials_exception = HTTPException(

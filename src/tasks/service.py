@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from file_service import create_test_files
 from schemas import Pagination
-from tasks.models import TaskModel, task_repo
+from tasks.models import TaskModel, task_async_repo
 from tasks.schemas import TaskCreateSchema, TaskInDBSchema
 
 
@@ -25,7 +25,7 @@ class TaskService:
             time=task_data.time,
             test_count=len(task_data.example_tests),
         )
-        task_model: TaskModel = await task_repo.create(task_model, session)
+        task_model: TaskModel = await task_async_repo.create(task_model, session)
         create_test_files(task_model.id, task_data.example_tests)
         return TaskInDBSchema.model_validate(task_model, from_attributes=True)
 
@@ -34,7 +34,7 @@ class TaskService:
         task_id: int,
         session: AsyncSession,
     ) -> TaskInDBSchema:
-        task_model = await task_repo.get_one(task_id, session)
+        task_model = await task_async_repo.get_one(task_id, session)
         return TaskInDBSchema.model_validate(task_model, from_attributes=True)
 
     @staticmethod
@@ -42,7 +42,7 @@ class TaskService:
         pagination: Pagination,
         session: AsyncSession,
     ) -> list[TaskInDBSchema]:
-        task_models = await task_repo.get_page(pagination, session)
+        task_models = await task_async_repo.get_page(pagination, session)
         return [
             TaskInDBSchema.model_validate(task_model, from_attributes=True)
             for task_model in task_models

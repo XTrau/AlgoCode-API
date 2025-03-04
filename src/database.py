@@ -1,23 +1,37 @@
 from typing import AsyncIterator
 
 from fastapi import HTTPException, status, Depends
+from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from config import settings
 
 
+sync_engine = create_engine(
+    url=settings.db.database_psycopg2_url, pool_size=10, max_overflow=5
+)
+sync_session_maker = sessionmaker(bind=sync_engine)
+
 async_engine = create_async_engine(url=settings.db.database_asyncpg_url)
-new_session_async = async_sessionmaker(bind=async_engine, expire_on_commit=False)
+async_session_maker = async_sessionmaker(bind=async_engine, expire_on_commit=False)
 
 
 class Base(DeclarativeBase):
     id: int
 
 
-async def get_session() -> AsyncIterator[AsyncSession]:
-    async with new_session_async() as session:
+async def get_async_session() -> AsyncIterator[AsyncSession]:
+    async with async_session_maker() as session:
         yield session
+
+
+def get_sync_session():
+    session = sync_session_maker()
+    try:
+        yield session
+    finally:
+        session.close()
 
 
 async def create_database():

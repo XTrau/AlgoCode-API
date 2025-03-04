@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from database import Base
-from repository import GenericRepository
+from repository import GenericAsyncRepository
 
 
 class UserModel(Base):
@@ -15,4 +15,4 @@ class UserModel(Base):
     is_superuser: Mapped[bool] = mapped_column(default=False, nullable=False)
 
 
-user_repo = GenericRepository(UserModel)
+user_repo = GenericAsyncRepository(UserModel)

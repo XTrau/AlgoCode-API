@@ -18,6 +18,10 @@ class DBSettings(BaseSettings):
     def database_asyncpg_url(self):
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
+    @property
+    def database_psycopg2_url(self):
+        return f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+
     model_config = SettingsConfigDict(env_file=ENV_DIR, extra="ignore")
 
 

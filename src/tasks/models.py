@@ -1,7 +1,7 @@
 from sqlalchemy import Text, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 from database import Base
-from repository import GenericRepository
+from repository import GenericAsyncRepository, GenericSyncRepository
 
 
 class TaskModel(Base):
@@ -17,4 +17,5 @@ class TaskModel(Base):
     test_count: Mapped[int] = mapped_column(nullable=False)
 
 
-task_repo = GenericRepository(TaskModel)
+task_async_repo = GenericAsyncRepository(TaskModel)
+task_sync_repo = GenericSyncRepository(TaskModel)

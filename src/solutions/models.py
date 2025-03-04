@@ -5,7 +5,7 @@ from sqlalchemy import ForeignKey, DateTime, func
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import Mapped, mapped_column
 from database import Base
-from repository import GenericRepository
+from repository import GenericAsyncRepository, GenericSyncRepository
 from test_system.schemas import LanguageEnum
 
 
@@ -49,4 +49,5 @@ class SolutionModel(Base):
     )
 
 
-solutions_repo = GenericRepository(SolutionModel)
+solutions_async_repo = GenericAsyncRepository(SolutionModel)
+solutions_sync_repo = GenericSyncRepository(SolutionModel)

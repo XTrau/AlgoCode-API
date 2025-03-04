@@ -5,31 +5,22 @@ import pytest
 from fastapi import status
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
-from database import get_session
+from database import get_async_session
 from main import app
 from config import settings
 from celery_config import celery_app
 
 from httpx import AsyncClient, ASGITransport
 
-engine = create_async_engine(settings.db.database_asyncpg_url)
-TestingSessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False)
 
-
-async def override_get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with TestingSessionLocal() as session:
-        yield session
-        await session.rollback()
-
-
-# Подмена зависимости в приложении
-app.dependency_overrides[get_session] = override_get_async_session
-celery_app.conf.update(
-    task_always_eager=True,
-    task_eager_propagates=True,
-    broker_url="memory://",
-    result_backend="rpc://",
-)
+@pytest.fixture(scope="session", autouse=True)
+async def setup_celery():
+    celery_app.conf.update(
+        task_always_eager=True,
+        task_eager_propagates=True,
+        broker_url="memory://",
+        result_backend="rpc://",
+    )
 
 
 @pytest.fixture(scope="session")

@@ -2,7 +2,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.auth import get_password_hash
 from auth.models import UserModel
-from database import new_session_async
 from tasks.schemas import TaskCreateSchema, TestSchema
 from tasks.service import TaskService
 

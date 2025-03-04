@@ -3,7 +3,7 @@ from fastapi import FastAPI, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from admin import UserAdmin, TaskAdmin
-from database import create_database, reset_database, async_engine, get_session
+from database import create_database, reset_database, async_engine, get_async_session
 
 from auth.router import auth_router
 from file_service import clear_upload_folder
@@ -49,7 +49,7 @@ async def create():
 
 
 @app.post("/reset_backend", status_code=status.HTTP_200_OK)
-async def reset_backend(session: AsyncSession = Depends(get_session)):
+async def reset_backend(session: AsyncSession = Depends(get_async_session)):
     await reset_database()
     clear_upload_folder()
     await seed_database(session)

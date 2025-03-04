@@ -1,5 +1,3 @@
-import asyncio
-
 from sqlalchemy.orm import Session
 from docker.errors import DockerException
 from celery_config import celery_app
@@ -40,26 +38,17 @@ def check_solution(solution_id: int):
             task_model=task_model,
         )
 
-        print("Code Runner created!")
-
         solution_model: SolutionModel = solutions_sync_repo.patch(
             obj_id=solution_model.id, status=SolutionStatus.COMPILING, session=session
         )
 
-        print("Code file creating...")
         code_runner.create_file()
-        print("Code File created!")
 
-        print("Code file analyzing...")
         code_runner.analyze_code()
-        print("Code File analyzed!")
 
-        print("Code File Compilling!")
         if language_schema.compiled:
             code_runner.compile_code()
-        print("Code File Compilled!")
 
-        print("Code testing...")
         for test_number in range(1, task_model.test_count + 1):
             solution_model: SolutionModel = solutions_sync_repo.patch(
                 obj_id=solution_model.id,
@@ -67,10 +56,7 @@ def check_solution(solution_id: int):
                 test_number=test_number,
                 session=session,
             )
-
             output = code_runner.run_test(test_number)
-            print(f"Output: {output}")
-        print("Code File Runned!")
     except DockerException as e:
         print(f"Ошибка при работе с Docker: {e}")
     except TimeLimitException as e:
@@ -100,7 +86,6 @@ def check_solution(solution_id: int):
             status=SolutionStatus.WRONG_ANSWER,
             session=session,
         )
-
     else:
         solution_model: SolutionModel = solutions_sync_repo.patch(
             obj_id=solution_model.id,

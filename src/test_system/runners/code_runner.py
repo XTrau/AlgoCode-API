@@ -1,15 +1,13 @@
 from docker.models.containers import Container
 
-from config import settings
 from tasks.models import TaskModel
 from test_system.exceptions import CompileError
 from test_system.schemas import LanguageSchema
 
-from test_system.config import docker_client
+from test_system.config import docker_client, test_system_config
 
 
 class CodeRunner:
-    HOST_TESTS_PATH = settings.UPLOAD_PATH
     SOURCE_PATH = "/solution"
     TESTS_PATH = "/solution/tests"
 
@@ -19,7 +17,7 @@ class CodeRunner:
     def __init__(
         self, solution_code: str, language_schema: LanguageSchema, task_model: TaskModel
     ):
-        tests_path = str(self.HOST_TESTS_PATH / f"{task_model.id}")
+        tests_path = str(test_system_config.HOST_TESTS_PATH / f"{task_model.id}")
 
         self.container: Container | bytes = docker_client.containers.run(
             language_schema.docker_image_name,
@@ -60,6 +58,5 @@ class CodeRunner:
         pass
 
     def __del__(self):
-        print("Deleting Code Runner...")
         self.container.stop()
         self.container.remove()

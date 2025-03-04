@@ -15,7 +15,7 @@ class TestSolutions:
             assert "title" in lang
 
     @pytest.mark.asyncio(loop_scope="session")
-    async def test_check_solution_test(self, admin_client: AsyncClient):
+    async def test_check_solution(self, admin_client: AsyncClient):
         solution = {
             "language": "python",
             "code": """a, b = map(int, input().split())\nprint(a + b)""",
@@ -36,3 +36,17 @@ class TestSolutions:
             assert "status" in solution_obj
             assert solution_obj["status"] == "Полное решение"
             assert "date_of_create" in solution_obj
+
+    @pytest.mark.asyncio(loop_scope="session")
+    async def test_check_infinite_loop_solution(self, admin_client: AsyncClient):
+        solution = {
+            "language": "python",
+            "code": """a, b = map(int, input().split())\nwhile True:\n    pass\nprint(a + b)""",
+        }
+
+        response = await admin_client.post("/solutions/task/1", json=solution)
+        assert response.status_code == 201
+        solution_obj = response.json()
+        response = await admin_client.get(f"/solutions/{solution_obj["id"]}")
+        solution_obj = response.json()
+        assert solution_obj["status"] == "Превышение лимита времени"

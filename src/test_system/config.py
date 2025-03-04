@@ -4,6 +4,7 @@ from pathlib import Path
 import docker
 from docker import DockerClient
 
+from config import settings
 from test_system.exceptions import CompileError
 from test_system.schemas import LanguageEnum, LanguageSchema
 
@@ -11,6 +12,7 @@ docker_client: DockerClient = docker.from_env()
 
 
 class TestSystemSettings:
+    HOST_TESTS_PATH = settings.UPLOAD_PATH
     languages_file_path = Path(__file__).parent / "languages.json"
     languages_data: dict[str, dict] = {}
 

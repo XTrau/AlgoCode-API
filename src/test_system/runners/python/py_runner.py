@@ -4,6 +4,7 @@ from time import time
 from tasks.models import TaskModel
 from test_system.runners.code_runner import CodeRunner
 from test_system.exceptions import *
+from test_system.runners.utils import get_output_and_runtime
 from test_system.schemas import LanguageSchema
 
 
@@ -40,16 +41,19 @@ class PyRunner(CodeRunner):
         test_file_name = f"input{test_number}"
         test_file_path = f"{self.TESTS_PATH}/{test_file_name}"
 
-        start_time = time()
         exit_code, output = self.container.exec_run(
-            f'bash -c "cat {test_file_path} | python3 {self._get_main_file_path()}"'
+            f'timeout {self.task.time + 0.5}s bash -c "time cat {test_file_path} | python3 {self._get_main_file_path()}"'
         )
-        end_time = time()
-        runtime_time = end_time - start_time
-        print(f"RunTime: {runtime_time}")
-        if runtime_time > self.task.time:
-            raise TimeLimitException()
+        print(exit_code)
+
+        if exit_code == 124:
+            raise TimeLimitException(self.task.time + 0.5)
 
         if exit_code != 0:
-            raise RunTimeException(output)
-        return output.decode().strip(" ").strip("\n")
+            raise RunTimeException()
+
+        output, runtime = get_output_and_runtime(output)
+
+        if runtime > self.task.time:
+            raise TimeLimitException(runtime)
+        return output.strip(" ").strip("\n")

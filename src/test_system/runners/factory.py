@@ -1,7 +1,7 @@
 from tasks.models import TaskModel
 from test_system.exceptions import CompileError
 from test_system.runners.code_runner import CodeRunner
-from test_system.runners.python.runner import PyRunner
+from test_system.runners.python.py_runner import PyRunner
 from test_system.schemas import LanguageEnum, LanguageSchema
 from test_system.config import test_system_config
 

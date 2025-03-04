@@ -1,6 +1,4 @@
 import ast
-from time import time
-
 from tasks.models import TaskModel
 from test_system.runners.code_runner import CodeRunner
 from test_system.exceptions import *
@@ -40,20 +38,14 @@ class PyRunner(CodeRunner):
     def run_test(self, test_number: int) -> str:
         test_file_name = f"input{test_number}"
         test_file_path = f"{self.TESTS_PATH}/{test_file_name}"
-
         exit_code, output = self.container.exec_run(
             f'timeout {self.task.time + 0.5}s bash -c "time cat {test_file_path} | python3 {self._get_main_file_path()}"'
         )
-        print(exit_code)
-
         if exit_code == 124:
             raise TimeLimitException(self.task.time + 0.5)
-
         if exit_code != 0:
-            raise RunTimeException()
-
+            raise RunTimeException(output.decode())
         output, runtime = get_output_and_runtime(output)
-
         if runtime > self.task.time:
             raise TimeLimitException(runtime)
         return output.strip(" ").strip("\n")

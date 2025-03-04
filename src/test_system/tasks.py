@@ -93,5 +93,5 @@ def check_solution(solution_id: int):
             session=session,
         )
     finally:
-        del code_runner
         session.close()
+        del code_runner

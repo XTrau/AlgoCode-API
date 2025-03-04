@@ -1,26 +1,28 @@
-from fastapi import HTTPException, status
+from typing import AsyncIterator
+
+from fastapi import HTTPException, status, Depends
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import DeclarativeBase
 
 from config import settings
 
 
-engine = create_async_engine(url=settings.db.database_asyncpg_url)
-new_session = async_sessionmaker(bind=engine, expire_on_commit=False)
+async_engine = create_async_engine(url=settings.db.database_asyncpg_url)
+new_session_async = async_sessionmaker(bind=async_engine, expire_on_commit=False)
 
 
 class Base(DeclarativeBase):
     id: int
 
 
-async def get_session():
-    async with new_session() as session:
+async def get_session() -> AsyncIterator[AsyncSession]:
+    async with new_session_async() as session:
         yield session
 
 
 async def create_database():
     try:
-        async with engine.begin() as conn:
+        async with async_engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
             await conn.commit()
             return {"success": True, "msg": "База данных успешно создана"}
@@ -33,7 +35,7 @@ async def create_database():
 
 async def reset_database():
     try:
-        async with engine.begin() as conn:
+        async with async_engine.begin() as conn:
             await conn.run_sync(Base.metadata.drop_all)
             await conn.run_sync(Base.metadata.create_all)
     except Exception as e:

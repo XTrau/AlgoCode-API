@@ -1,0 +1,12 @@
+{
+  "cpp": {
+    "title": "C++ 20 (g++)",
+    "docker_image_name": "gcc:14.2.0",
+    "compiled": true
+  },
+  "python": {
+    "title": "Python 3.11",
+    "docker_image_name": "python:3.11",
+    "compiled": false
+  }
+}

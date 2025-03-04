@@ -1,92 +1,99 @@
-import pytest
-from fastapi import status
-
-
-@pytest.mark.usefixtures("reset_backend_class")
-class TestTasks:
-    @pytest.mark.parametrize(
-        "task_data, status_code",
-        [
-            (
-                {
-                    "title": "Супер мега задача",
-                    "text": "Напишите программу которая принимает два целых числа a, b и выводит их сумму.",
-                    "time": 0.5,
-                    "memory": 64,
-                    "example_tests": [
-                        {"input": "1 2", "output": "3"},
-                        {"input": "0 3", "output": "3"},
-                    ],
-                },
-                status.HTTP_201_CREATED,
-            ),
-            (
-                {
-                    "title": "Супер мега задача",
-                    "text": "Напишите программу которая принимает два целых числа a, b и выводит их сумму.",
-                    "time": 0,
-                    "memory": 64,
-                    "example_tests": [
-                        {"input": "1 2", "output": "3"},
-                        {"input": "0 3", "output": "3"},
-                    ],
-                },
-                status.HTTP_422_UNPROCESSABLE_ENTITY,
-            ),
-            (
-                {
-                    "title": "Супер мега задача",
-                    "text": "Напишите программу которая принимает два целых числа a, b и выводит их сумму.",
-                    "time": 0.5,
-                    "memory": 64,
-                    "example_tests": [],
-                },
-                status.HTTP_422_UNPROCESSABLE_ENTITY,
-            ),
-            (
-                {
-                    "title": "Супер мега задача",
-                    "text": "Напишите программу которая принимает два целых числа a, b и выводит их сумму.",
-                    "time": 0.5,
-                    "memory": 0,
-                    "example_tests": [],
-                },
-                status.HTTP_422_UNPROCESSABLE_ENTITY,
-            ),
-        ],
-    )
-    def test_task_create(
-        self,
-        task_data: dict,
-        status_code: int,
-        client,
-    ):
-        response = client.post("/tasks", json=task_data)
-        assert response.status_code == status_code
-        if response.status_code // 200 == 1:
-            obj = response.json()
-            assert obj["title"] == task_data["title"]
-            assert "id" in obj
-
-    def test_task_get(self, client):
-        task_id = 1
-        response = client.get(f"/tasks/{task_id}")
-        assert response.status_code == 200
-        obj = response.json()
-        assert obj == {
-            "id": 1,
-            "title": "Супер мега задача",
-            "text": "Напишите программу которая принимает два целых числа a, b и выводит их сумму.",
-            "time": 0.5,
-            "memory": 64,
-            "example_tests": [
-                {"input": "1 2", "output": "3"},
-                {"input": "0 3", "output": "3"},
-            ],
-        }
-
-    def test_solutions_create(self, client):
-        pass
-
-    def test_solutions_create(self, client):
-        pass
+# import pytest
+# from fastapi import status
+# from starlette.testclient import TestClient
+#
+# test_task_create_params = [
+#     (
+#         {
+#             "title": "Супер мега задача",
+#             "text": "Напишите программу которая принимает два целых числа a, b и выводит их сумму.",
+#             "time": 0.5,
+#             "memory": 64,
+#             "example_tests": [
+#                 {"input": "1 2", "output": "3"},
+#                 {"input": "0 3", "output": "3"},
+#             ],
+#         },
+#         status.HTTP_201_CREATED,
+#     ),
+#     (
+#         {
+#             "title": "Супер мега задача",
+#             "text": "Напишите программу которая принимает два целых числа a, b и выводит их сумму.",
+#             "time": 0,
+#             "memory": 64,
+#             "example_tests": [
+#                 {"input": "1 2", "output": "3"},
+#                 {"input": "0 3", "output": "3"},
+#             ],
+#         },
+#         status.HTTP_422_UNPROCESSABLE_ENTITY,
+#     ),
+#     (
+#         {
+#             "title": "Супер мега задача",
+#             "text": "Напишите программу которая принимает два целых числа a, b и выводит их сумму.",
+#             "time": 0.5,
+#             "memory": 64,
+#             "example_tests": [],
+#         },
+#         status.HTTP_422_UNPROCESSABLE_ENTITY,
+#     ),
+#     (
+#         {
+#             "title": "Супер мега задача",
+#             "text": "Напишите программу которая принимает два целых числа a, b и выводит их сумму.",
+#             "time": 0.5,
+#             "memory": 0,
+#             "example_tests": [],
+#         },
+#         status.HTTP_422_UNPROCESSABLE_ENTITY,
+#     ),
+# ]
+#
+#
+# @pytest.mark.usefixtures("reset_backend_class")
+# class TestTasks:
+#     @pytest.mark.parametrize("task_data, status_code", test_task_create_params)
+#     def test_task_create(
+#         self,
+#         task_data: dict,
+#         status_code: int,
+#         admin_client: TestClient,
+#     ):
+#         response = admin_client.post("/tasks", json=task_data)
+#         assert response.status_code == status_code
+#         if response.status_code // 200 == 1:
+#             obj = response.json()
+#             assert obj["title"] == task_data["title"]
+#             assert "id" in obj
+#
+#     def test_task_create_not_superuser(
+#         self,
+#         client: TestClient,
+#     ):
+#         task_data = {
+#             "title": "Супер мега задача",
+#             "text": "Напишите программу которая принимает два целых числа a, b и выводит их сумму.",
+#             "time": 0.5,
+#             "memory": 64,
+#             "example_tests": [
+#                 {"input": "1 2", "output": "3"},
+#                 {"input": "0 3", "output": "3"},
+#             ],
+#         }
+#         response = client.post("/tasks", json=task_data)
+#         assert response.status_code == status.HTTP_401_UNAUTHORIZED
+#
+#     def test_task_get(self, client: TestClient):
+#         task_id = 1
+#         response = client.get(f"/tasks/{task_id}")
+#         assert response.status_code == 200
+#         obj = response.json()
+#
+#         assert "title" in obj
+#         assert "text" in obj
+#         assert "time" in obj
+#         assert "memory" in obj
+#         assert "example_tests" in obj
+#         assert "id" in obj

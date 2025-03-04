@@ -1,6 +1,8 @@
 from fastapi import Depends, HTTPException, Request
 from jwt import InvalidTokenError
 from passlib.context import CryptContext
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.annotation import Annotated
 from starlette import status
 
 from auth.jwt import decode_jwt
@@ -10,6 +12,7 @@ from auth.schemas import (
     UserInDbSchema,
 )
 from config import settings
+from database import get_session
 
 pwd_context = CryptContext(schemes=["bcrypt"])
 
@@ -34,6 +37,7 @@ async def get_tokens_from_cookies(request: Request) -> TokenPair:
 
 
 async def get_current_user(
+    session: AsyncSession = Depends(get_session),
     token_pair: TokenPair = Depends(get_tokens_from_cookies),
 ) -> UserInDbSchema:
     credentials_exception = HTTPException(
@@ -48,7 +52,7 @@ async def get_current_user(
     except InvalidTokenError:
         raise credentials_exception
 
-    user_model = await user_repo.filter(email=email)
+    user_model = await user_repo.filter(session, email=email)
     return UserInDbSchema.model_validate(user_model, from_attributes=True)
 
 
@@ -65,7 +69,7 @@ async def get_current_active_user(
 async def get_current_superuser(
     user: UserInDbSchema = Depends(get_current_active_user),
 ) -> UserInDbSchema:
-    if user.is_superuser is True:
+    if not user.is_superuser is True:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Недостаточно прав"
         )

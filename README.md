@@ -1,3 +1,5 @@
+
+
 ## Dev
 
 Run postgres database in docker
@@ -21,7 +23,17 @@ python src/main.py
 Run Celery
 
 ```
-celery -A src.worker.celery_app worker --loglevel=info --pool=solo
+celery -A celery_config.celery_app worker --loglevel=info --pool=solo
+```
+
+Pytest config:
+
+Create the test database in PostgreSQL:
+
+```
+docker exec -it <postgres container id> bash
+psql -U postgres
+CREATE DATABASE test;
 ```
 
 ## Create ssl keys for auth working

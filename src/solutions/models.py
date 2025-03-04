@@ -1,26 +1,17 @@
 import enum
-from datetime import datetime, timezone
+from datetime import datetime
 
-from sqlalchemy import ForeignKey, DateTime
+from sqlalchemy import ForeignKey, DateTime, func
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import Mapped, mapped_column
 from database import Base
 from repository import GenericRepository
-
-
-class LanguageModel(Base):
-    __tablename__ = "languages"
-
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    title: Mapped[str] = mapped_column(nullable=False)
-
-    compiled: Mapped[bool] = mapped_column(nullable=False)
-    compile: Mapped[str] = mapped_column(nullable=True)
-    run: Mapped[str] = mapped_column(nullable=False)
-    extension: Mapped[str] = mapped_column(nullable=False)
+from test_system.schemas import LanguageEnum
 
 
 class SolutionStatus(enum.Enum):
+    WAITING = "Ожидание"
+    COMPILING = "Компилируется"
     RUNNING = "Выполняется"
     ACCEPTED = "Полное решение"
     WRONG_ANSWER = "Неправильный ответ"
@@ -38,13 +29,16 @@ class SolutionModel(Base):
     date_of_create: Mapped[datetime] = mapped_column(
         DateTime(timezone=False),
         nullable=False,
-        default=datetime.utcnow,
+        default=func.now(),
     )
     test_number: Mapped[int] = mapped_column(nullable=False, default=1)
     status: Mapped[ENUM] = mapped_column(
         ENUM(SolutionStatus, name="solution_status_enum"),
         nullable=False,
-        default=SolutionStatus.RUNNING,
+        default=SolutionStatus.WAITING,
+    )
+    language: Mapped[ENUM] = mapped_column(
+        ENUM(LanguageEnum, name="solution_language_enum"), nullable=False
     )
 
     task_id: Mapped[int] = mapped_column(
@@ -53,8 +47,6 @@ class SolutionModel(Base):
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-    language_id: Mapped[int] = mapped_column(ForeignKey("languages.id"), nullable=False)
 
 
 solutions_repo = GenericRepository(SolutionModel)
-language_repo = GenericRepository(SolutionModel)

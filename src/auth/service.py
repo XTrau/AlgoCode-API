@@ -1,6 +1,7 @@
 from datetime import datetime, timezone, timedelta
 
 from fastapi import status, HTTPException, Response
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.auth import get_password_hash, verify_password
 from auth.jwt import create_access_token, create_refresh_token
@@ -16,9 +17,13 @@ from config import settings
 
 class AuthService:
     @staticmethod
-    async def register_user(user_data: UserCreateSchema) -> UserSchema:
-        user_model_email = await user_repo.filter(email=user_data.email)
-        user_model_username = await user_repo.filter(username=user_data.username)
+    async def register_user(
+        user_data: UserCreateSchema, session: AsyncSession
+    ) -> UserSchema:
+        user_model_email = await user_repo.filter(session, email=user_data.email)
+        user_model_username = await user_repo.filter(
+            session, username=user_data.username
+        )
         if user_model_email is not None or user_model_username is not None:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -31,18 +36,20 @@ class AuthService:
             email=user_data.email.__str__(),
             password_hash=hashed_password,
         )
-        user_model = await user_repo.create(user_model)
+        user_model = await user_repo.create(user_model, session)
         return UserSchema.model_validate(user_model, from_attributes=True)
 
     @staticmethod
-    async def authenticate_user(user_data: UserLoginSchema) -> UserInDbSchema:
+    async def authenticate_user(
+        user_data: UserLoginSchema, session: AsyncSession
+    ) -> UserInDbSchema:
         incorrect_fields_exception = HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Неправильный логин или пароль",
         )
 
-        user_model_email = await user_repo.filter(email=user_data.login)
-        user_model_username = await user_repo.filter(username=user_data.login)
+        user_model_email = await user_repo.filter(session, email=user_data.login)
+        user_model_username = await user_repo.filter(session, username=user_data.login)
         if user_model_email is None and user_model_username is None:
             raise incorrect_fields_exception
         user_model = (

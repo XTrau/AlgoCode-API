@@ -21,7 +21,7 @@ app = FastAPI()
 
 app.include_router(auth_router)
 app.include_router(tasks_router, prefix="/tasks")
-app.include_router(solutions_router, prefix="/tasks")
+app.include_router(solutions_router, prefix="/solutions")
 
 
 admin = Admin(app, async_engine)

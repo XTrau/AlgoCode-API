@@ -2,7 +2,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from conftest import admin_client, reset_backend
+from conftest import admin_client
 
 test_register_user_params = [
     ("XTray", "exam@mail", "qweqweqw", status.HTTP_422_UNPROCESSABLE_ENTITY),
@@ -28,7 +28,7 @@ test_login_user_params = [
 class TestAuth:
     @pytest.mark.asyncio(loop_scope="session")
     async def test_admin(self, admin_client: AsyncClient):
-        response = await admin_client.get("/me")
+        response = await admin_client.get("/auth/me")
         obj = response.json()
         assert obj["username"] == "admin"
         assert obj["is_superuser"] == True
@@ -50,7 +50,7 @@ class TestAuth:
             "email": email,
             "password": password,
         }
-        response = await client.post("/register", data=user_data)
+        response = await client.post("/auth/register", data=user_data)
         assert response.status_code == status_code
 
         if status_code // 2 == 100:
@@ -73,11 +73,11 @@ class TestAuth:
             "login": login,
             "password": password,
         }
-        response = await client.post("/login", data=login_data)
+        response = await client.post("/auth/login", data=login_data)
         assert response.status_code == status_code
 
         if status_code // 2 == 100:
-            response = await client.get("/me")
+            response = await client.get("/auth/me")
             obj = response.json()
             assert obj["username"] == login or obj["email"] == login
             assert "is_superuser" in obj

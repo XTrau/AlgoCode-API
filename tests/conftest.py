@@ -1,11 +1,6 @@
-import asyncio
-from typing import AsyncGenerator
-
 import pytest
 from fastapi import status
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
-from database import get_async_session
 from main import app
 from config import settings
 from celery_config import celery_app
@@ -34,10 +29,10 @@ async def client() -> AsyncClient:
 @pytest.fixture(scope="function")
 async def admin_client(client: AsyncClient) -> AsyncClient:
     user_data = {"login": "admin", "password": "admin"}
-    response = await client.post("/login", data=user_data)
+    response = await client.post("/auth/login", data=user_data)
     assert response.status_code == status.HTTP_204_NO_CONTENT
     yield client
-    response = await client.post("/logout")
+    response = await client.post("/auth/logout")
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 

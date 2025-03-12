@@ -14,6 +14,9 @@ class TestSolutions:
             assert "mark" in lang
             assert "title" in lang
 
+
+@pytest.mark.usefixtures("reset_backend")
+class TestPythonSolutions:
     @pytest.mark.asyncio(loop_scope="session")
     async def test_check_solution(self, admin_client: AsyncClient):
         solution = {

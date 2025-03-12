@@ -1,9 +1,19 @@
-from sqladmin import Admin
+from sqladmin import ModelView
 
-from admin.admin_models import UserAdmin, TaskAdmin
-from database import async_engine
-from main import app
+from auth.models import UserModel
+from tasks.models import TaskModel
 
-admin = Admin(app, async_engine)
-admin.add_view(UserAdmin)
-admin.add_view(TaskAdmin)
+
+class UserAdmin(ModelView, model=UserModel):
+    column_list = [
+        UserModel.id,
+        UserModel.username,
+        UserModel.email,
+    ]
+
+
+class TaskAdmin(ModelView, model=TaskModel):
+    column_list = [
+        TaskModel.id,
+        TaskModel.title,
+    ]

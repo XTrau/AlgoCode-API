@@ -4,6 +4,11 @@
     "docker_image_name": "gcc:14.2.0",
     "compiled": true
   },
+  "java": {
+    "title": "Java 8",
+    "docker_image_name": "java:3.11",
+    "compiled": true
+  },
   "python": {
     "title": "Python 3.11",
     "docker_image_name": "python:3.11",

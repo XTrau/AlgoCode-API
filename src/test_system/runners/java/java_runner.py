@@ -1,12 +1,11 @@
 from tasks.models import TaskModel
+from test_system.exceptions import TimeLimitException, RunTimeException
 from test_system.runners.code_runner import CodeRunner
-from test_system.exceptions import *
+from test_system.runners.utils import get_output_and_runtime
 from test_system.schemas import LanguageSchema
 
-import re
 
-
-class PyRunner(CodeRunner):
+class JavaRunner(CodeRunner):
     FORBIDDEN_MODULES = {
         "os",
         "sys",
@@ -21,14 +20,12 @@ class PyRunner(CodeRunner):
         self, solution_code: str, language_schema: LanguageSchema, task_model: TaskModel
     ):
         super().__init__(solution_code, language_schema, task_model)
-        self.code_run_str = "python"
-        self.main_file_extension = "py"
-        self.run_file_extension = "py"
-        self.re_modules = r"\s\*import\s+{lib}\s+|\s\*from\s+{lib}\s+import\s+"
+        self.code_run_str = "java"
+        self.main_file_extension = "java"
+        self.run_file_extension = "java"
 
     def analyze_code(self):
-        for module in self.FORBIDDEN_MODULES:
-            pattern = self.re_modules.format(lib=module)
-            m = re.match(pattern, self.solution_code)
-            if m is not None:
-                raise CompileError(m)
+        pass
+
+    def compile_code(self) -> None:
+        pass

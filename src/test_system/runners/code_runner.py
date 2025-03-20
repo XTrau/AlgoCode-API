@@ -1,7 +1,8 @@
 from docker.models.containers import Container
 
 from tasks.models import TaskModel
-from test_system.exceptions import CompileError
+from test_system.exceptions import CompileError, TimeLimitException, RunTimeException
+from test_system.runners.utils import get_output_and_runtime
 from test_system.schemas import LanguageSchema
 
 from test_system.config import docker_client, test_system_config
@@ -11,7 +12,9 @@ class CodeRunner:
     SOURCE_PATH = "/solution"
     TESTS_PATH = "/solution/tests"
 
+    code_run_str = ""
     main_file_extension = ""
+    run_file_extension = ""
     container: Container | bytes
 
     def __init__(
@@ -41,6 +44,9 @@ class CodeRunner:
     def _get_main_file_path(self):
         return f"{self.SOURCE_PATH}/main.{self.main_file_extension}"
 
+    def _get_main_runfile_path(self):
+        return f"{self.SOURCE_PATH}/main.{self.run_file_extension}"
+
     def create_file(self) -> None:
         exit_code, output = self.container.exec_run(
             f'bash -c "echo -e \\"{self.solution_code}\\" > {self._get_main_file_path()}"'
@@ -55,7 +61,19 @@ class CodeRunner:
         pass
 
     def run_test(self, test_number: int) -> str:
-        pass
+        test_file_name = f"input{test_number}"
+        test_file_path = f"{self.TESTS_PATH}/{test_file_name}"
+        exit_code, output = self.container.exec_run(
+            f'timeout {self.task.time + 0.5}s bash -c "time cat {test_file_path} | {self.code_run_str} {self._get_main_runfile_path()}"'
+        )
+        if exit_code == 124:
+            raise TimeLimitException(self.task.time + 0.5)
+        if exit_code != 0:
+            raise RunTimeException(output.decode())
+        output, runtime = get_output_and_runtime(output)
+        if runtime > self.task.time:
+            raise TimeLimitException(runtime)
+        return output.strip(" ").strip("\n")
 
     def __del__(self):
         self.container.stop()

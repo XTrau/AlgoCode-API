@@ -1,13 +1,19 @@
 from tasks.models import TaskModel
 from test_system.exceptions import CompileError
 from test_system.runners.code_runner import CodeRunner
+from test_system.runners.cpp.cpp_runner import CppRunner
+from test_system.runners.java.java_runner import JavaRunner
 from test_system.runners.python.py_runner import PyRunner
 from test_system.schemas import LanguageEnum, LanguageSchema
 from test_system.config import test_system_config
 
 
 class CodeRunnerFactory:
-    code_runner_classes: dict[str, type[CodeRunner]] = {"python": PyRunner}
+    code_runner_classes: dict[str, type[CodeRunner]] = {
+        "python": PyRunner,
+        "java": JavaRunner,
+        "cpp": CppRunner,
+    }
 
     def get_code_runner(
         self, code: str, language: LanguageEnum, task_model: TaskModel

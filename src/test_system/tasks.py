@@ -1,5 +1,4 @@
 from sqlalchemy.orm import Session
-from docker.errors import DockerException
 from celery_config import celery_app
 from database import get_sync_session
 
@@ -15,12 +14,21 @@ from test_system.config import test_system_config
 from test_system.runners.factory import code_runner_factory
 
 from test_system.exceptions import (
-    RunTimeException,
     TimeLimitException,
     MemoryLimitException,
     WrongAnswerException,
 )
 from test_system.schemas import LanguageSchema
+
+
+def check_output(task_id: int, test_number: int, output: str):
+    with open(
+        test_system_config.HOST_TESTS_PATH / str(task_id) / f"output{test_number}"
+    ) as file:
+        expected_output = file.read().strip(" ").strip("\n")
+
+    if output != expected_output:
+        raise WrongAnswerException()
 
 
 @celery_app.task
@@ -43,9 +51,7 @@ def check_solution(solution_id: int):
         )
 
         code_runner.create_file()
-
         code_runner.analyze_code()
-
         if language_schema.compiled:
             code_runner.compile_code()
 
@@ -57,8 +63,7 @@ def check_solution(solution_id: int):
                 session=session,
             )
             output = code_runner.run_test(test_number)
-    except DockerException as e:
-        print(f"Ошибка при работе с Docker: {e}")
+            check_output(task_model.id, test_number, output)
     except TimeLimitException as e:
         solution_model: SolutionModel = solutions_sync_repo.patch(
             obj_id=solution_model.id,
@@ -72,18 +77,16 @@ def check_solution(solution_id: int):
             status=SolutionStatus.MEMORY_LIMIT,
             session=session,
         )
-
-    except RunTimeException as e:
-        solution_model: SolutionModel = solutions_sync_repo.patch(
-            obj_id=solution_model.id,
-            status=SolutionStatus.RUNTIME_ERROR,
-            session=session,
-        )
-
     except WrongAnswerException as e:
         solution_model: SolutionModel = solutions_sync_repo.patch(
             obj_id=solution_model.id,
             status=SolutionStatus.WRONG_ANSWER,
+            session=session,
+        )
+    except Exception as e:
+        solution_model: SolutionModel = solutions_sync_repo.patch(
+            obj_id=solution_model.id,
+            status=SolutionStatus.RUNTIME_ERROR,
             session=session,
         )
     else:

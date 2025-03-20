@@ -1,11 +1,16 @@
-
-
 ## Dev
 
 Run postgres database in docker
 
 ```
-docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres
+docker run -d --name algocode-postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres
+```
+
+Create database for tests
+
+```
+docker exec -it algocode-postgres psql -U postgres
+CREATE DATABASE test;
 ```
 
 Run Redis (broker for Celery) in docker

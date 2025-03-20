@@ -3,7 +3,7 @@ from fastapi import status
 
 from main import app
 from config import settings
-from celery_config import celery_app
+from test_system.tasks import celery_app
 
 from httpx import AsyncClient, ASGITransport
 

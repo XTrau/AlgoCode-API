@@ -6,7 +6,6 @@ from file_service import clear_upload_folder
 from seed import seed_database
 
 from auth.router import auth_router
-from solutions.router import solutions_router
 from tasks.router import tasks_router
 from test_system.router import test_system_router
 
@@ -15,8 +14,7 @@ main_router = APIRouter()
 
 main_router.include_router(auth_router, prefix="/auth")
 main_router.include_router(tasks_router, prefix="/tasks")
-main_router.include_router(solutions_router, prefix="/solutions")
-main_router.include_router(test_system_router)
+main_router.include_router(test_system_router, prefix="/solutions")
 
 
 # Test router

@@ -1,13 +1,11 @@
+from celery import Celery
 from sqlalchemy.orm import Session
-from celery_config import celery_app
+
+from config import settings
 from database import get_sync_session
 
-from solutions.models import (
-    solutions_sync_repo,
-    SolutionModel,
-    SolutionStatus,
-)
 from tasks.models import TaskModel, task_sync_repo
+from test_system.models import SolutionModel, solutions_sync_repo, SolutionStatus
 from test_system.runners.code_runner import CodeRunner
 
 from test_system.config import test_system_config
@@ -19,6 +17,14 @@ from test_system.exceptions import (
     WrongAnswerException,
 )
 from test_system.schemas import LanguageSchema
+
+
+celery_app = Celery(
+    "tasks",
+    backend=settings.redis.redis_url,
+    broker=settings.redis.redis_url,
+    broker_connection_retry_on_startup=True,
+)
 
 
 def check_output(task_id: int, test_number: int, output: str):
@@ -97,4 +103,3 @@ def check_solution(solution_id: int):
         )
     finally:
         session.close()
-        del code_runner

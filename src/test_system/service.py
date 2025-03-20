@@ -1,8 +1,8 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from solutions.models import SolutionModel, solutions_async_repo
-from solutions.schemas import SolutionCreateSchema, SolutionSchema
+from test_system.models import SolutionModel, solutions_async_repo
+from test_system.schemas import SolutionCreateSchema, SolutionSchema
 
 
 class SolutionService:

@@ -28,7 +28,7 @@ python src/main.py
 Run Celery
 
 ```
-celery -A celery_config.celery_app worker --loglevel=info --pool=solo
+celery -A test_system.tasks worker --loglevel=info --pool=threads --concurrency=8
 ```
 
 Pytest config:

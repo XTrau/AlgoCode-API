@@ -1,4 +1,5 @@
 import enum
+from datetime import datetime
 
 from pydantic import BaseModel
 
@@ -16,3 +17,15 @@ class LanguageSchema(BaseModel):
 class LanguageResponseSchema(BaseModel):
     title: str
     mark: str
+
+
+class SolutionCreateSchema(BaseModel):
+    language: LanguageEnum
+    code: str
+
+
+class SolutionSchema(SolutionCreateSchema):
+    id: int
+    status: str
+    test_number: int
+    date_of_create: datetime

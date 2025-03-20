@@ -6,7 +6,7 @@ from httpx import AsyncClient
 class TestSolutions:
     @pytest.mark.asyncio(loop_scope="session")
     async def test_get_programming_languages(self, client: AsyncClient):
-        response = await client.get("/languages")
+        response = await client.get("/solutions/languages")
         obj = response.json()
         assert type(obj) is list
         assert len(obj) > 0

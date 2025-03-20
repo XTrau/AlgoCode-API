@@ -69,21 +69,3 @@ class UserInDbSchema(UserSchema):
 class TokenPair(BaseModel):
     access_token: str
     refresh_token: str
-
-
-async def get_user_login_schema(
-    login: str = Form(...), password: str = Form(...)
-) -> UserLoginSchema:
-    return UserLoginSchema(login=login, password=password)
-
-
-async def get_user_create_schema(
-    username: str = Form(...),
-    email: EmailStr = Form(...),
-    password: str = Form(...),
-):
-    return UserCreateSchema(
-        username=username,
-        email=email,
-        password=password,
-    )

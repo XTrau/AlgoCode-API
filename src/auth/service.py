@@ -1,18 +1,21 @@
-from datetime import datetime, timezone, timedelta
-
 from fastapi import status, HTTPException, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from auth.auth import get_password_hash, verify_password
-from auth.jwt import create_access_token, create_refresh_token
-from auth.models import UserModel, user_repo
+from auth.auth import (
+    verify_password,
+    get_password_hash,
+    find_user,
+    set_response_tokens,
+    create_token_pair,
+)
+from auth.exceptions import incorrect_fields_exception
+from auth.models import UserModel, async_user_repo
 from auth.schemas import (
     UserSchema,
     UserCreateSchema,
     UserLoginSchema,
     UserInDbSchema,
 )
-from config import settings
 
 
 class AuthService:
@@ -20,11 +23,8 @@ class AuthService:
     async def register_user(
         user_data: UserCreateSchema, session: AsyncSession
     ) -> UserSchema:
-        user_model_email = await user_repo.filter(session, email=user_data.email)
-        user_model_username = await user_repo.filter(
-            session, username=user_data.username
-        )
-        if user_model_email is not None or user_model_username is not None:
+        user_model = await find_user(session, user_data.username, user_data.email)
+        if user_model is not None:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Пользователь уже существует",
@@ -36,50 +36,20 @@ class AuthService:
             email=user_data.email.__str__(),
             password_hash=hashed_password,
         )
-        user_model = await user_repo.create(user_model, session)
+        user_model = await async_user_repo.create(user_model, session)
         return UserSchema.model_validate(user_model, from_attributes=True)
 
     @staticmethod
     async def authenticate_user(
-        user_data: UserLoginSchema, session: AsyncSession
+        user_data: UserLoginSchema, response: Response, session: AsyncSession
     ) -> UserInDbSchema:
-        incorrect_fields_exception = HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Неправильный логин или пароль",
-        )
-
-        user_model_email = await user_repo.filter(session, email=user_data.login)
-        user_model_username = await user_repo.filter(session, username=user_data.login)
-        if user_model_email is None and user_model_username is None:
+        user_model = await find_user(session, user_data.login, user_data.login)
+        if user_model is None:
             raise incorrect_fields_exception
-        user_model = (
-            user_model_username if user_model_username is not None else user_model_email
-        )
         if not verify_password(user_data.password, user_model.password_hash):
             raise incorrect_fields_exception
 
+        access_token, refresh_token = create_token_pair({"email": user_model.email})
+        await set_response_tokens(access_token, refresh_token, response)
+
         return UserInDbSchema.model_validate(user_model, from_attributes=True)
-
-    @staticmethod
-    async def set_response_tokens(user: UserInDbSchema, response: Response):
-        refresh_token = create_access_token({"email": user.email})
-        access_token = create_refresh_token({"email": user.email})
-        response.set_cookie(
-            key=settings.jwt.ACCESS_TOKEN_NAME,
-            value=access_token,
-            expires=datetime.now(timezone.utc)
-            + timedelta(minutes=settings.jwt.ACCESS_TOKEN_EXPIRE_TIME + 30),
-            httponly=True,
-        )
-        response.set_cookie(
-            key=settings.jwt.REFRESH_TOKEN_NAME,
-            value=refresh_token,
-            expires=datetime.now(timezone.utc)
-            + timedelta(minutes=settings.jwt.REFRESH_TOKEN_EXPIRE_TIME + 30),
-            httponly=True,
-        )
-
-    @staticmethod
-    async def delete_auth_cookies(response: Response):
-        response.delete_cookie(key=settings.jwt.ACCESS_TOKEN_NAME)
-        response.delete_cookie(key=settings.jwt.REFRESH_TOKEN_NAME)

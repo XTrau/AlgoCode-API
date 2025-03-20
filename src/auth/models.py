@@ -15,4 +15,4 @@ class UserModel(Base):
     is_superuser: Mapped[bool] = mapped_column(default=False, nullable=False)
 
 
-user_repo = GenericAsyncRepository(UserModel)
+async_user_repo = GenericAsyncRepository(UserModel)

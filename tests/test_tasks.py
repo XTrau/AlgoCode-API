@@ -7,6 +7,7 @@ test_task_create_params = [
         {
             "title": "Супер мега задача",
             "text": "Напишите программу которая принимает два целых числа a, b и выводит их сумму.",
+            "input_format": "В первой строке вводятся два числа a, b (0 <= a <= 10e9, 0 <= b <= 10e9)\nНеобходимо вывести сумму этих чисел.",
             "time": 0.5,
             "memory": 64,
             "example_tests": [
@@ -20,6 +21,7 @@ test_task_create_params = [
         {
             "title": "Супер мега задача",
             "text": "Напишите программу которая принимает два целых числа a, b и выводит их сумму.",
+            "input_format": "В первой строке вводятся два числа a, b (0 <= a <= 10e9, 0 <= b <= 10e9)\nНеобходимо вывести сумму этих чисел.",
             "time": 0,
             "memory": 64,
             "example_tests": [
@@ -33,6 +35,7 @@ test_task_create_params = [
         {
             "title": "Супер мега задача",
             "text": "Напишите программу которая принимает два целых числа a, b и выводит их сумму.",
+            "input_format": "В первой строке вводятся два числа a, b (0 <= a <= 10e9, 0 <= b <= 10e9)\nНеобходимо вывести сумму этих чисел.",
             "time": 0.5,
             "memory": 64,
             "example_tests": [],
@@ -43,6 +46,7 @@ test_task_create_params = [
         {
             "title": "Супер мега задача",
             "text": "Напишите программу которая принимает два целых числа a, b и выводит их сумму.",
+            "input_format": "В первой строке вводятся два числа a, b (0 <= a <= 10e9, 0 <= b <= 10e9)\nНеобходимо вывести сумму этих чисел.",
             "time": 0.5,
             "memory": 0,
             "example_tests": [],
@@ -57,12 +61,12 @@ class TestTasks:
     @pytest.mark.asyncio(loop_scope="session")
     @pytest.mark.parametrize("task_data, status_code", test_task_create_params)
     async def test_task_create(
-        self,
-        task_data: dict,
-        status_code: int,
-        admin_client: AsyncClient,
+            self,
+            task_data: dict,
+            status_code: int,
+            admin_client: AsyncClient,
     ):
-        response = await admin_client.post("/tasks/", json=task_data)
+        response = await admin_client.post("/api/tasks/", json=task_data)
         assert response.status_code == status_code
         if response.status_code // 200 == 1:
             obj = response.json()
@@ -71,8 +75,8 @@ class TestTasks:
 
     @pytest.mark.asyncio(loop_scope="session")
     async def test_task_create_not_superuser(
-        self,
-        client: AsyncClient,
+            self,
+            client: AsyncClient,
     ):
         task_data = {
             "title": "Супер мега задача",
@@ -84,13 +88,13 @@ class TestTasks:
                 {"input": "0 3", "output": "3"},
             ],
         }
-        response = await client.post("/tasks/", json=task_data)
+        response = await client.post("/api/tasks/", json=task_data)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     @pytest.mark.asyncio(loop_scope="session")
     async def test_task_get(self, client: AsyncClient):
         task_id = 1
-        response = await client.get(f"/tasks/{task_id}")
+        response = await client.get(f"/api/tasks/{task_id}")
         assert response.status_code == 200
         obj = response.json()
 

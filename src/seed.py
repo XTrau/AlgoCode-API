@@ -19,6 +19,7 @@ async def seed_database(session: AsyncSession):
     task_data: TaskCreateSchema = TaskCreateSchema(
         title="Сумма",
         text="Напишите программу которая принимает два числа и выводи их сумму",
+        input_format="В первой строке вводятся два числа a, b (0 <= a <= 10e9, 0 <= b <= 10e9)\nНеобходимо вывести сумму этих чисел.",
         time=1,
         memory=64,
         example_tests=[

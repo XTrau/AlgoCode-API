@@ -6,7 +6,7 @@ from httpx import AsyncClient
 class TestSolutions:
     @pytest.mark.asyncio(loop_scope="session")
     async def test_get_programming_languages(self, client: AsyncClient):
-        response = await client.get("/solutions/languages")
+        response = await client.get("/api/solutions/languages")
         obj = response.json()
         assert type(obj) is list
         assert len(obj) > 0
@@ -24,13 +24,13 @@ class TestPythonSolutions:
             "code": """a, b = map(int, input().split())\nprint(a + b)""",
         }
 
-        response = await admin_client.post("/solutions/task/1", json=solution)
+        response = await admin_client.post("/api/solutions/tasks/1", json=solution)
         assert response.status_code == 201
 
         solution_obj: dict = response.json()
         assert "id" in solution_obj
 
-        response = await admin_client.get(f"/solutions/{solution_obj["id"]}")
+        response = await admin_client.get(f"/api/solutions/{solution_obj["id"]}")
         solution_obj = response.json()
         if response.status_code == 200:
             assert "language" in solution_obj
@@ -47,9 +47,9 @@ class TestPythonSolutions:
             "code": """a, b = map(int, input().split())\nwhile True:\n    pass\nprint(a + b)""",
         }
 
-        response = await admin_client.post("/solutions/task/1", json=solution)
+        response = await admin_client.post("/api/solutions/tasks/1", json=solution)
         assert response.status_code == 201
         solution_obj = response.json()
-        response = await admin_client.get(f"/solutions/{solution_obj["id"]}")
+        response = await admin_client.get(f"/api/solutions/{solution_obj["id"]}")
         solution_obj = response.json()
         assert solution_obj["status"] == "Превышение лимита времени"

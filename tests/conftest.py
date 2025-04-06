@@ -21,7 +21,7 @@ async def setup_celery():
 @pytest.fixture(scope="session")
 async def client() -> AsyncClient:
     async with AsyncClient(
-        transport=ASGITransport(app), base_url="http://test"
+            transport=ASGITransport(app), base_url="http://test"
     ) as client:
         yield client
 
@@ -29,22 +29,23 @@ async def client() -> AsyncClient:
 @pytest.fixture(scope="function")
 async def admin_client(client: AsyncClient) -> AsyncClient:
     user_data = {"login": "admin", "password": "admin"}
-    response = await client.post("/auth/login", data=user_data)
+    response = await client.post("/api/auth/login", data=user_data)
+    print(response.status_code)
     assert response.status_code == status.HTTP_204_NO_CONTENT
     yield client
-    response = await client.post("/auth/logout")
+    response = await client.post("/api/auth/logout")
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
 @pytest.fixture(scope="function")
 async def reset_backend(client: AsyncClient):
     assert settings.MODE == "TEST"
-    response = await client.post("/reset_backend")
+    response = await client.post("/api/reset_backend")
     assert response.status_code == 200
 
 
 @pytest.fixture(scope="class")
 async def reset_backend_class(client: AsyncClient):
     assert settings.MODE == "TEST"
-    response = await client.post("/reset_backend")
+    response = await client.post("/api/reset_backend")
     assert response.status_code == 200

@@ -26,21 +26,21 @@ async def get_languages() -> list[LanguageResponseSchema]:
     ]
 
 
-@router.get("/task/{task_id}", status_code=status.HTTP_200_OK)
+@router.get("/tasks/{task_id}", status_code=status.HTTP_200_OK)
 async def get_task_solutions(
-    task_id: int = Path(gt=0),
-    user: UserInDbSchema = Depends(get_current_active_user),
-    session: AsyncSession = Depends(get_async_session),
+        task_id: int = Path(gt=0),
+        user: UserInDbSchema = Depends(get_current_active_user),
+        session: AsyncSession = Depends(get_async_session),
 ) -> list[SolutionSchema]:
     return await SolutionService.get_task_solutions(task_id, user.id, session)
 
 
-@router.post("/task/{task_id}", status_code=status.HTTP_201_CREATED)
+@router.post("/tasks/{task_id}", status_code=status.HTTP_201_CREATED)
 async def create_task_solution(
-    solution: SolutionCreateSchema = Body(),
-    task_id: int = Path(gt=0),
-    user: UserInDbSchema = Depends(get_current_active_user),
-    session: AsyncSession = Depends(get_async_session),
+        solution: SolutionCreateSchema = Body(),
+        task_id: int = Path(gt=0),
+        user: UserInDbSchema = Depends(get_current_active_user),
+        session: AsyncSession = Depends(get_async_session),
 ) -> SolutionSchema:
     solution_schema: SolutionSchema = await SolutionService.create_solution(
         task_id=task_id, user_id=user.id, solution=solution, session=session
@@ -51,9 +51,9 @@ async def create_task_solution(
 
 @router.get("/{solution_id}", status_code=status.HTTP_200_OK)
 async def get_solution(
-    solution_id: int = Path(gt=0),
-    user: UserInDbSchema = Depends(get_current_active_user),
-    session: AsyncSession = Depends(get_async_session),
+        solution_id: int = Path(gt=0),
+        user: UserInDbSchema = Depends(get_current_active_user),
+        session: AsyncSession = Depends(get_async_session),
 ) -> SolutionSchema:
     solution_schema: SolutionSchema = await SolutionService.get_solution(
         solution_id=solution_id, user_id=user.id, session=session

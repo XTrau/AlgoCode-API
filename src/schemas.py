@@ -7,5 +7,5 @@ class Pagination(BaseModel):
     count: int
 
 
-async def get_pagination(page: int = Query(ge=0), count: int = Query(ge=0)):
+async def get_pagination(page: int = Query(gt=0), count: int = Query(gt=0)):
     return Pagination(page=page, count=count)

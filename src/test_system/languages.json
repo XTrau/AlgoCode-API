@@ -11,7 +11,7 @@
   },
   "python": {
     "title": "Python 3.11",
-    "docker_image_name": "python:3.11",
+    "docker_image_name": "python:3.11-slim",
     "compiled": false
   }
 }

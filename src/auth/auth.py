@@ -30,20 +30,18 @@ def create_token_pair(payload: dict) -> tuple[str, str]:
 
 
 async def set_response_tokens(
-    access_token: str, refresh_token: str, response: Response
+        access_token: str, refresh_token: str, response: Response
 ):
     response.set_cookie(
         key=settings.jwt.ACCESS_TOKEN_NAME,
         value=access_token,
-        expires=datetime.now(timezone.utc)
-        + timedelta(minutes=settings.jwt.ACCESS_TOKEN_EXPIRE_TIME + 30),
+        expires=datetime.now(timezone.utc) + timedelta(minutes=settings.jwt.ACCESS_TOKEN_EXPIRE_TIME + 30),
         httponly=True,
     )
     response.set_cookie(
         key=settings.jwt.REFRESH_TOKEN_NAME,
         value=refresh_token,
-        expires=datetime.now(timezone.utc)
-        + timedelta(minutes=settings.jwt.REFRESH_TOKEN_EXPIRE_TIME + 30),
+        expires=datetime.now(timezone.utc) + timedelta(minutes=settings.jwt.REFRESH_TOKEN_EXPIRE_TIME + 30),
         httponly=True,
     )
 
@@ -54,7 +52,7 @@ async def delete_auth_cookies(response: Response):
 
 
 async def find_user(
-    session: AsyncSession, username: str | None = None, email: str | None = None
+        session: AsyncSession, username: str | None = None, email: str | None = None
 ) -> UserInDbSchema:
     user_model = await async_user_repo.filter(session, email=email)
     if user_model is not None:
@@ -84,8 +82,8 @@ async def get_tokens_from_cookies(request: Request, response: Response) -> Token
 
 
 async def get_current_user(
-    session: AsyncSession = Depends(get_async_session),
-    token_pair: TokenPair = Depends(get_tokens_from_cookies),
+        session: AsyncSession = Depends(get_async_session),
+        token_pair: TokenPair = Depends(get_tokens_from_cookies),
 ) -> UserInDbSchema:
     try:
         payload_dict = JwtAPI.decode_jwt(token_pair.access_token)
@@ -100,7 +98,7 @@ async def get_current_user(
 
 
 async def get_current_active_user(
-    user: UserInDbSchema = Depends(get_current_user),
+        user: UserInDbSchema = Depends(get_current_user),
 ) -> UserInDbSchema:
     if user.banned is True:
         raise HTTPException(
@@ -111,7 +109,7 @@ async def get_current_active_user(
 
 
 async def get_current_superuser(
-    user: UserInDbSchema = Depends(get_current_active_user),
+        user: UserInDbSchema = Depends(get_current_active_user),
 ) -> UserInDbSchema:
     if not user.is_superuser is True:
         raise HTTPException(

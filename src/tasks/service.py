@@ -9,8 +9,8 @@ from tasks.schemas import TaskCreateSchema, TaskInDBSchema
 class TaskService:
     @staticmethod
     async def create_task(
-        task_data: TaskCreateSchema,
-        session: AsyncSession,
+            task_data: TaskCreateSchema,
+            session: AsyncSession,
     ) -> TaskInDBSchema:
         example_tests = [
             {"input": example_test.input, "output": example_test.output}
@@ -20,6 +20,7 @@ class TaskService:
         task_model = TaskModel(
             text=task_data.text,
             title=task_data.title,
+            input_format=task_data.input_format,
             example_tests=example_tests,
             memory=task_data.memory,
             time=task_data.time,
@@ -31,16 +32,16 @@ class TaskService:
 
     @staticmethod
     async def get_task(
-        task_id: int,
-        session: AsyncSession,
+            task_id: int,
+            session: AsyncSession,
     ) -> TaskInDBSchema:
         task_model = await task_async_repo.get_one(task_id, session)
         return TaskInDBSchema.model_validate(task_model, from_attributes=True)
 
     @staticmethod
     async def get_tasks(
-        pagination: Pagination,
-        session: AsyncSession,
+            pagination: Pagination,
+            session: AsyncSession,
     ) -> list[TaskInDBSchema]:
         task_models = await task_async_repo.get_page(pagination, session)
         return [

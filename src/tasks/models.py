@@ -11,6 +11,7 @@ class TaskModel(Base):
 
     title: Mapped[str] = mapped_column(Text, nullable=False)
     text: Mapped[str] = mapped_column(Text, nullable=False)
+    input_format: Mapped[str] = mapped_column(Text, nullable=False)
     time: Mapped[float] = mapped_column(nullable=False)
     memory: Mapped[int] = mapped_column(nullable=False)
     example_tests: Mapped[list] = mapped_column(JSON, nullable=False)

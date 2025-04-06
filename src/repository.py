@@ -41,12 +41,11 @@ class GenericAsyncRepository(Generic[ModelType]):
         return result.scalars().all()
 
     async def get_page(
-        self, pagination: Pagination, session: AsyncSession
+            self, pagination: Pagination, session: AsyncSession
     ) -> list[ModelType]:
-
         query = (
             select(self.model)
-            .offset(pagination.page * pagination.count)
+            .offset((pagination.page - 1) * pagination.count)
             .limit(pagination.count)
         )
         result = await session.execute(query)
@@ -60,7 +59,7 @@ class GenericAsyncRepository(Generic[ModelType]):
         return obj
 
     async def create_all(
-        self, objs: list[ModelType], session: AsyncSession
+            self, objs: list[ModelType], session: AsyncSession
     ) -> list[ModelType]:
         session.add_all(objs)
         await session.flush()
@@ -68,7 +67,7 @@ class GenericAsyncRepository(Generic[ModelType]):
         return objs
 
     async def update(
-        self, obj_id: int, new_obj: ModelType, session: AsyncSession
+            self, obj_id: int, new_obj: ModelType, session: AsyncSession
     ) -> ModelType:
         stmt = (
             update(self.model).where(self.model.id == obj_id).values(**new_obj.__dict__)
@@ -121,7 +120,6 @@ class GenericSyncRepository(Generic[ModelType]):
         return result.scalars().all()
 
     def get_page(self, pagination: Pagination, session: Session) -> list[ModelType]:
-
         query = (
             select(self.model)
             .offset(pagination.page * pagination.count)

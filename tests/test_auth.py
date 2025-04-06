@@ -28,8 +28,9 @@ test_login_user_params = [
 class TestAuth:
     @pytest.mark.asyncio(loop_scope="session")
     async def test_admin(self, admin_client: AsyncClient):
-        response = await admin_client.get("/auth/me")
+        response = await admin_client.get("/api/auth/me")
         obj = response.json()
+        print(obj)
         assert obj["username"] == "admin"
         assert obj["is_superuser"] == True
 
@@ -38,19 +39,19 @@ class TestAuth:
         "username, email, password, status_code", test_register_user_params
     )
     async def test_register_user(
-        self,
-        username: str,
-        email: str,
-        password: str,
-        status_code: int,
-        client: AsyncClient,
+            self,
+            username: str,
+            email: str,
+            password: str,
+            status_code: int,
+            client: AsyncClient,
     ):
         user_data = {
             "username": username,
             "email": email,
             "password": password,
         }
-        response = await client.post("/auth/register", data=user_data)
+        response = await client.post("/api/auth/register", data=user_data)
         assert response.status_code == status_code
 
         if status_code // 2 == 100:
@@ -63,21 +64,21 @@ class TestAuth:
     @pytest.mark.asyncio(loop_scope="session")
     @pytest.mark.parametrize("login, password, status_code", test_login_user_params)
     async def test_login_user(
-        self,
-        login,
-        password,
-        status_code,
-        client: AsyncClient,
+            self,
+            login,
+            password,
+            status_code,
+            client: AsyncClient,
     ):
         login_data = {
             "login": login,
             "password": password,
         }
-        response = await client.post("/auth/login", data=login_data)
+        response = await client.post("/api/auth/login", data=login_data)
         assert response.status_code == status_code
 
         if status_code // 2 == 100:
-            response = await client.get("/auth/me")
+            response = await client.get("/api/auth/me")
             obj = response.json()
             assert obj["username"] == login or obj["email"] == login
             assert "is_superuser" in obj
